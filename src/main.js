@@ -652,6 +652,8 @@ const sections = [...document.querySelectorAll('.sec')];
    INTERACTIONS (TOUCH & MOUSE RESPONSIVE)
 ===================================================== */
 const detailsEl = document.getElementById('details');
+const detailsBackdrop = document.getElementById('detailsBackdrop');
+const closeDetailsBtn = document.getElementById('closeDetailsBtn');
 const slideBtn = document.getElementById('slideBtn');
 const mainEl = document.querySelector('main');
 
@@ -661,10 +663,31 @@ let ready = false;
 
 function setSlide(v) {
   slideTarget = v;
-  detailsEl.classList.toggle('open', v === 1);
-  slideBtn.textContent = v === 1 ? '‹ Back' : 'Details ›';
+  const isOpen = v === 1;
+  detailsEl.classList.toggle('open', isOpen);
+  if (detailsBackdrop) detailsBackdrop.classList.toggle('open', isOpen);
+  slideBtn.classList.toggle('open-state', isOpen);
+  slideBtn.textContent = isOpen ? '‹ Back' : 'Details ›';
 }
-slideBtn.addEventListener('click', () => setSlide(slideTarget ? 0 : 1));
+
+slideBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  setSlide(slideTarget === 1 ? 0 : 1);
+});
+
+if (closeDetailsBtn) {
+  closeDetailsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setSlide(0);
+  });
+}
+
+if (detailsBackdrop) {
+  detailsBackdrop.addEventListener('click', (e) => {
+    e.stopPropagation();
+    setSlide(0);
+  });
+}
 
 let isDraggingFlute = false;
 let dragStartX = 0;
@@ -677,7 +700,7 @@ let fluteRotY = 0;
 let sx = 0, sy = 0;
 
 addEventListener('pointerdown', (e) => {
-  if (e.target.closest('#details') || e.target.closest('.slide-btn')) return;
+  if (e.target.closest('#details') || e.target.closest('.slide-btn') || e.target.closest('.close-details-btn')) return;
   sx = e.clientX; sy = e.clientY;
   if (current < 0.05) {
     isDraggingFlute = true;
@@ -703,7 +726,7 @@ addEventListener('pointermove', (e) => {
 
 addEventListener('pointerup', (e) => {
   isDraggingFlute = false;
-  if (e.target.closest('#details') || e.target.closest('.slide-btn')) return;
+  if (e.target.closest('#details') || e.target.closest('.slide-btn') || e.target.closest('.close-details-btn')) return;
   const dx = e.clientX - sx, dy = e.clientY - sy;
   if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
     if (dx < 0 && ready) setSlide(1);
